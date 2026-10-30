@@ -215,3 +215,76 @@ Operational notes:
   the newest engine files.
 - Proxied tabs opened with "open in new tab (proxied)" are served by the
   originating page's controller — keep the Memphis tab open.
+
+## Deploying on Render.com
+
+The whole stack ships as **one Docker web service** behind a single public
+port. A small supervisor — `scripts/render-gateway.js`, PID 1 in the
+container — routes traffic and keeps every process alive:
+
+```
+Render edge ──▶ :$PORT  render-gateway (node, PID 1)
+                  ├── HTTP/WS  everything            ──▶ Next.js standalone (node, :3000)
+                  ├── HTTP/WS  ?XTransformPort=3001  ──▶ wisp relay          (bun,   :3001)
+                  │   WS       /wisp/*               ──▶ wisp relay
+                  └── HTTP/WS  ?XTransformPort=3003  ──▶ chat service        (bun,   :3003)
+```
+
+The routing mirrors the sandbox gateway's `XTransformPort` convention, so
+**no client URLs change** — the browser still connects to
+`wss://<host>/wisp/?XTransformPort=3001&/` and `io("/?XTransformPort=3003")`.
+
+### Files
+
+| File | Purpose |
+| --- | --- |
+| `render.yaml` | Render blueprint (service, env vars, health check, disk option) |
+| `Dockerfile` | Multi-stage build: node:22-slim + bun; bundles the mini-services |
+| `.dockerignore` | Keeps user data, secrets and sandbox plumbing out of the image |
+| `scripts/render-gateway.js` | PID 1: router + supervisor + boot-time `prisma db push` |
+
+### Deploy
+
+1. Push this repo to GitHub/GitLab.
+2. On Render: **New → Blueprint**, point it at the repo — `render.yaml`
+   creates the web service (Docker, health check `/api/health`).
+3. (Optional, for Memphis AI) set the `ZAI_CONFIG` env var in the Render
+   dashboard to `{"baseUrl":"...","apiKey":"..."}` — the gateway writes it
+   to `/etc/.z-ai-config` at boot. Without it the app runs fine; AI
+   features answer "model unavailable".
+
+### Data persistence
+
+SQLite lives at `DATABASE_URL` (`file:/app/db/custom.db` by default). On
+the **free plan the disk is ephemeral** — the database and AI uploads
+reset on every deploy/restart, and the instance sleeps after 15 min of
+inactivity (cold start ~1 min). For persistence:
+
+1. Upgrade the service to a paid plan (Starter+).
+2. Uncomment the `disk:` block in `render.yaml` (1 GB at `/data`).
+3. Change `DATABASE_URL` to `file:/data/custom.db` and optionally set
+   `UPLOAD_DIR=/data/upload-ai`.
+
+On every boot the gateway runs `prisma db push` against the target file —
+fresh volumes get the full schema, and existing databases are migrated to
+the current schema automatically.
+
+### Environment variables
+
+| Var | Default | Meaning |
+| --- | --- | --- |
+| `PORT` | `10000` | Public port (set by Render) |
+| `NEXT_PORT` / `WISP_PORT` / `CHAT_PORT` | `3000` / `3001` / `3003` | Internal ports — leave default |
+| `DATABASE_URL` | `file:/app/db/custom.db` | SQLite location (put it on the disk for persistence) |
+| `ZAI_CONFIG` | – | `{"baseUrl":…,"apiKey":…}` JSON for Memphis AI |
+| `UPLOAD_DIR` | `<app>/upload/ai` | Where AI-composed files are stored |
+
+### Verifying the deployment
+
+- `GET /api/health` → `{"ok":true,...}` (also Render's health check)
+- Chat tab loads the channel list (socket.io through the gateway)
+- Browse loads a site (Scramjet through the wisp relay)
+
+A local simulation of the exact container topology (gateway + standalone
+build + bundled services on one port) is re-runnable:
+`bash scripts/test-render-sim.sh`.

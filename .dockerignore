@@ -1,0 +1,45 @@
+# keep the Docker build context small AND keep user data / secrets
+# out of the image (the sandbox's live SQLite DB, uploads, AI
+# credentials must never be baked in)
+
+.git
+.next
+node_modules
+**/node_modules
+mini-services-dist
+
+# live data
+db
+upload
+download
+tool-results
+
+# secrets & local config
+.env
+.env.*
+.z-ai-config
+.claude
+
+# sandbox / agent plumbing
+.zscripts
+skills
+examples
+tests
+scripts/patch-sw-enus.mjs
+scripts/test-render-*.sh
+scripts/fetch-gameflare-listing.mjs
+scripts/build-games-catalog.mjs
+scripts/probe-embed-hosts.mjs
+mini-services/*/wisp.log
+mini-services/*/*.log
+
+# logs & noise
+*.log
+*.tsbuildinfo
+dev.log
+.DS_Store
+
+# render artifacts (not needed inside the image)
+render.yaml
+Dockerfile
+.dockerignore

@@ -447,3 +447,26 @@ Stage Summary:
 
 Stage Summary:
 - Every surface now renders US English deterministically: the app declares en-US and formats dates/numbers/sorts with a pinned locale, both proxy layers send Accept-Language: en-US,en;q=0.9 to every site, search engines are locked to US-English results, and Memphis AI answers in US English by default.
+
+## Render.com deployment packaging (2026-10-30, latest)
+
+- User request: "make this app ready to be put on render.com".
+- CONSTRAINT: Render gives ONE public port per web service; the app is four processes (Next :3000, wisp :3001, chat :3003 + the sandbox gateway's XTransformPort routing). Docker chosen over native runtime (chat needs bun:sqlite; multi-process supervision).
+- NEW FILES:
+  * scripts/render-gateway.js — PID 1 supervisor + router in plain CommonJS (node or bun): HTTP proxy (streaming, SSE-safe, hop-by-hop filtering) and raw-socket WS upgrade proxy; routing mirrors the sandbox convention but RESTRICTED — query XTransformPort=3001 → wisp, =3003 → chat, WS /wisp/* → wisp, everything else → Next (no arbitrary port selection). Spawns next (node standalone, HOSTNAME forced to 0.0.0.0 — Render sets HOSTNAME to the container hostname, which standalone would try to bind), wisp + chat (bun bundles); crash-restart with backoff (1s→15s, reset after 60s uptime); SIGTERM drain; boot sequence = mkdir DB dir → optional ZAI_CONFIG env written to /etc/.z-ai-config + app dir (the z-ai-web-dev-sdk reads that file) → prisma db push (creates/migrates the SQLite file) → children → listen on $PORT.
+  * Dockerfile — multi-stage: node:22-slim + global bun; build = bun install (lockfile) + mini-service deps + `bun run build` + `bun build --target=bun` bundles + isolated prisma@6.19.2 CLI tree; runtime = node:22-slim + bun, standalone Next at /app, prisma-cli + schema, bundled services, CMD node scripts/render-gateway.js.
+  * .dockerignore — keeps user data (db/, upload/), secrets (.env, .z-ai-config) and sandbox plumbing (skills/, .zscripts, test scripts) out of the image.
+  * render.yaml — blueprint: docker runtime, healthCheckPath /api/health, DATABASE_URL, optional ZAI_CONFIG (sync:false), commented disk block + instructions for persistent SQLite.
+  * src/app/api/health/route.ts — instant, dependency-free health endpoint (no DB/upstream pings so a slow child can never trip a restart loop).
+- CHANGES: mini-services now read PORT from env (wisp, chat) and DB_PATH (chat, was hardcoded to the sandbox path) — the gateway assigns internal ports and derives DB_PATH from DATABASE_URL so Prisma and bun:sqlite always hit the same file; prisma schema gains binaryTargets debian-openssl-3.0.x so the query engine is guaranteed inside the standalone output; README gains a "Deploying on Render.com" section (topology, steps, persistence, env table).
+- VALIDATION (all local, exact container topology on one port):
+  * `bun run build` passes (20 routes incl. /api/health); standalone has static+public+data/games.json (runtime catalog traced; gameflare-listing is import-tooling only).
+  * Isolated prisma CLI tree proven: `node …/prisma/build/index.js db push` creates all 16 tables on a fresh file in 13ms.
+  * Gateway sim (:8080 → next :3100 / wisp :3101 / chat :3103, fresh /tmp DB): health {"ok":true}, home 200 in 13ms, games API OK, wisp plain-HTTP route OK, socket.io polling handshake JSON OK, WS upgrades to BOTH wisp and chat return 101 Switching Protocols.
+  * Full user journey in the browser through :8080: register (Prisma write) → rules gate → chat UI with channel list (announcements/general/counting/casino/suggestions/share-links/media — only obtainable over the socket) → sidebar shows coins/XP. Both processes verified writing the same SQLite (chat's system user + channels via bun:sqlite, render users via Prisma).
+  * Proxied page through the simulated wisp: httpbin.org/headers renders "Accept-Language": "en-US,en;q=0.9" (en-US behavior intact end to end).
+  * tsc clean, eslint clean on new files, node --check OK on the gateway.
+- NOTES: bare `:3000` dev has no /wisp/ route (pre-existing sandbox artifact — use :81 or the gateway). Free Render plan = ephemeral disk (DB resets each deploy) + 15-min sleep; render.yaml + README document the paid disk upgrade. The gateway's db push uses --accept-data-loss to stay non-interactive (only fires on genuine schema divergence).
+
+Stage Summary:
+- The app is a single Docker web service on Render: one gateway process routes the one public port to Next, the wisp relay and the chat service with unchanged client URLs, supervises them with crash backoff, creates/migrates the SQLite database at boot, and can ingest AI credentials from one env var — every layer proven against a local simulation of the exact container topology.

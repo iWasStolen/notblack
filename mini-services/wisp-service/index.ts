@@ -7,12 +7,14 @@
  *
  *   wss://<preview-host>/wisp/?XTransformPort=3001
  *
- * Port: 3001 (see mini-services conventions).
+ * Port: 3001 by default (see mini-services conventions) — override
+ * with the PORT env var when a supervisor (render-gateway) assigns
+ * internal ports.
  */
 import { createServer } from "node:http";
 import { server as wisp, logging } from "@mercuryworkshop/wisp-js/server";
 
-const PORT = 3001;
+const PORT = Number(process.env.PORT) || 3001;
 
 logging.set_level(logging.INFO);
 

@@ -1,14 +1,16 @@
 /* ============================================================
    Memphis chat service — Socket.io + bun:sqlite on shared DB
-   Port 3003. Validates sessions against the main app's tables.
+   Port 3003 (override with PORT). Validates sessions against the
+   main app's tables. DB path comes from DB_PATH, falling back to
+   the shared sandbox location.
    ============================================================ */
 
 import { createServer } from "http";
 import { Database } from "bun:sqlite";
 import { Server, Socket } from "socket.io";
 
-const PORT = 3003;
-const DB_PATH = "/home/z/my-project/db/custom.db";
+const PORT = Number(process.env.PORT) || 3003;
+const DB_PATH = process.env.DB_PATH || "/home/z/my-project/db/custom.db";
 
 const db = new Database(DB_PATH, { create: true });
 db.exec("PRAGMA journal_mode=WAL;");

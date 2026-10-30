@@ -1,5 +1,9 @@
 generator client {
   provider = "prisma-client-js"
+  /* native covers the build host; debian-openssl-3.0.x pins the
+     Docker runtime (node:22-slim / Debian) so the query engine is
+     always present in the standalone output */
+  binaryTargets = ["native", "debian-openssl-3.0.x"]
 }
 
 datasource db {

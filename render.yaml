@@ -1,0 +1,49 @@
+# Render.com blueprint — Memphis unBLACKed
+#
+# Deploys the whole stack (Next.js + wisp relay + chat service) as a
+# single Docker web service behind one public port. The gateway
+# (scripts/render-gateway.js, PID 1) routes /wisp/ + socket.io traffic
+# and supervises the three child processes.
+#
+# After the first deploy, set ZAI_CONFIG in the Render dashboard to
+# enable Memphis AI:  {"baseUrl":"...","apiKey":"..."}
+#
+# PERSISTENT DATA — the free plan has an EPHEMERAL disk: the SQLite
+# database and AI uploads reset on every deploy/restart. To keep them:
+#   1. upgrade the plan (starter or higher — disks are not available
+#      on free instances)
+#   2. uncomment the `disk:` block below
+#   3. change DATABASE_URL to file:/data/custom.db
+#      (optionally set UPLOAD_DIR=/data/upload-ai)
+
+services:
+  - type: web
+    name: memphis-unblacked
+    runtime: docker
+    plan: free
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/health
+    autoDeploy: true
+    envVars:
+      - key: NODE_ENV
+        value: production
+      # SQLite location. file:/app/db/custom.db = container-local
+      # (ephemeral on the free plan). With a disk mounted at /data,
+      # use file:/data/custom.db instead.
+      - key: DATABASE_URL
+        value: file:/app/db/custom.db
+      # Memphis AI credentials — paste {"baseUrl":"...","apiKey":"..."}
+      # in the dashboard. Optional: without it the app runs fine, the
+      # AI features return "model unavailable".
+      - key: ZAI_CONFIG
+        sync: false
+      # Optional: keep AI file uploads on the persistent disk.
+      # - key: UPLOAD_DIR
+      #   value: /data/upload-ai
+    # Persistent disk (requires a paid plan). Uncomment together with
+    # the DATABASE_URL switch above.
+    # disk:
+    #   name: memphis-data
+    #   mountPath: /data
+    #   sizeGB: 1

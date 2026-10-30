@@ -140,11 +140,14 @@ export const DEFAULT_SETTINGS: AppSettings = {
   searchEngine: "duckduckgo",
 };
 
+/* Search URLs pin US-English results (kl/hl/gl/mkt) so engines stay
+   en-US regardless of relay geolocation or leftover site cookies —
+   the proxy also sends Accept-Language: en-US on every request. */
 export const SEARCH_ENGINES: { id: AppSettings["searchEngine"]; label: string; url: string }[] = [
-  { id: "duckduckgo", label: "DuckDuckGo", url: "https://duckduckgo.com/?q=%s" },
-  { id: "google", label: "Google", url: "https://www.google.com/search?q=%s" },
-  { id: "bing", label: "Bing", url: "https://www.bing.com/search?q=%s" },
-  { id: "brave", label: "Brave", url: "https://search.brave.com/search?q=%s" },
+  { id: "duckduckgo", label: "DuckDuckGo", url: "https://duckduckgo.com/?q=%s&kl=us-en" },
+  { id: "google", label: "Google", url: "https://www.google.com/search?q=%s&hl=en&gl=us" },
+  { id: "bing", label: "Bing", url: "https://www.bing.com/search?q=%s&mkt=en-US" },
+  { id: "brave", label: "Brave", url: "https://search.brave.com/search?q=%s&country=us" },
 ];
 
 /* ---------------- Auth / user ---------------- */

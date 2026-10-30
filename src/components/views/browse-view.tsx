@@ -465,7 +465,7 @@ export default function BrowseView() {
                       <div className="text-xs text-white truncate">{h.title}</div>
                       <div className="text-[10px] text-[#666] truncate flex items-center gap-1">
                         <Clock className="size-2.5" />
-                        {new Date(h.at).toLocaleString()} · {h.url}
+                        {new Date(h.at).toLocaleString("en-US")} · {h.url}
                       </div>
                     </button>
                   ))

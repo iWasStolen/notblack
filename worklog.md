@@ -426,3 +426,24 @@ Stage Summary:
 
 Stage Summary:
 - The Browse frame (and the same latent squeeze in Watch + Listen) is fixed at the root: definite app height + absolutely-anchored frames mean proxied sites now fill the whole viewport, and the address bar tracks navigation, back/forward and tab switches.
+
+## English (US) everywhere: pages, proxy, AI (2026-10-30, latest)
+
+- User request: "Make sure every page loads in English US."
+- Audit: app copy is already 100% English; the leaks were (a) `<html lang="en">` not region-tagged, (b) 34 locale-sensitive format calls (`toLocale*`, `localeCompare`) that follow the VISITOR's browser locale, (c) the two proxy layers forwarding the visitor's Accept-Language to sites, (d) search engines free to geo-localize, (e) AI prompts only "match the user's language".
+- FIXES:
+  1. layout.tsx: `lang="en"` → `lang="en-US"`.
+  2. scripts/pin-enus-locale.mjs codemod (re-runnable, idempotent): pinned `"en-US"` in all 34 calls across 17 files — dates/times/scores/coins/XP now render US-style (10/30/2026, 12-hour clock, comma thousands) and A–Z sorts are deterministic on the server too (Node ICU default no longer matters).
+  3. Server proxy (proxy-server.ts): dropped `accept-language` from the forwarded HOP_HEADERS; every outbound hop now sends a constant `Accept-Language: en-US,en;q=0.9`. LIVE-TESTED via /api/proxy → httpbin.org/headers with a zh-CN client header: outbound shows exactly en-US,en;q=0.9.
+  4. Scramjet client proxy (public/controller/controller.sw.js, patched by scripts/patch-sw-enus.mjs): the SW's `initialHeaders` RPC payload now filters out the browser's accept-language pair and appends exactly one `["accept-language","en-US,en;q=0.9"]` — covers document navigations AND sub-resources, and requests that omit the header. Expression-level patch on the vendored bundle (no API change, version-lock untouched); our /sw.js wrapper got a comment byte-bump so installed SWs re-check and pick it up.
+  5. SEARCH_ENGINES pinned: DuckDuckGo `kl=us-en`, Google `hl=en&gl=us`, Bing `mkt=en-US`, Brave `country=us` — results stay en-US even against relay geo or leftover site cookies.
+  6. AI defaults: chat SYSTEM_BASE + COMPOSE_SYSTEM now mandate English (US) unless the user writes another language; suggest route likewise (follow-ups in US English).
+- VERIFIED (:81 through Caddy — the full Caddy→wisp→epoxy chain; note bare :3000 dev has no /wisp/ route so proxied pages hang there, pre-existing environment artifact, unchanged by this work):
+  * App HTML: `<html lang="en-US">` served and live in the browser.
+  * Browse → httpbin.org/headers: frame renders JSON with "Accept-Language": "en-US,en;q=0.9"; URL path preserved (the earlier path "loss" was a test artifact of a blocked fill, normalizeInput handles paths correctly).
+  * Search "memphis test query" → https://duckduckgo.com/?q=memphis%20test%20query&kl=us-en.
+  * tsc clean, eslint 0 errors (7 pre-existing warnings in touched files, all predating this change), dev server 200s.
+- A/B check: reverted the SW patch and re-tested to confirm the pre-existing :3000-dev transport hang is NOT caused by the patch (same empty frame with pristine bundles); patch then re-applied and proven working on :81.
+
+Stage Summary:
+- Every surface now renders US English deterministically: the app declares en-US and formats dates/numbers/sorts with a pinned locale, both proxy layers send Accept-Language: en-US,en;q=0.9 to every site, search engines are locked to US-English results, and Memphis AI answers in US English by default.

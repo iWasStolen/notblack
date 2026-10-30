@@ -209,7 +209,7 @@ export default function Tetris() {
     <GameChrome
       title="Tetris"
       scoreLabel="score"
-      score={score.toLocaleString()}
+      score={score.toLocaleString("en-US")}
       extra={
         <span className="font-mono text-xs text-[#666] hidden sm:inline">
           L{level} · {lines} lines
@@ -217,7 +217,7 @@ export default function Tetris() {
       }
       onRestart={restart}
       over={over}
-      overScore={`Score: ${score.toLocaleString()} · ${lines} lines`}
+      overScore={`Score: ${score.toLocaleString("en-US")} · ${lines} lines`}
       onOverSubmit={
         score > 0 && !submitted.current
           ? () => { submitted.current = true; submitScore("tetris", score); }

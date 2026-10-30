@@ -297,7 +297,7 @@ function MessageBubble({
             </span>
           )}
           <span className="text-[10.5px] text-[#555]">
-            {new Date(m.createdAt).toLocaleTimeString([], {
+            {new Date(m.createdAt).toLocaleTimeString("en-US", {
               hour: "2-digit",
               minute: "2-digit",
             })}
@@ -721,9 +721,9 @@ export default function ChatView() {
                 {user.displayName || user.username}
               </p>
               <p className="text-[10.5px] text-[#666] flex items-center gap-1">
-                <Coins className="size-3" /> {user.coins.toLocaleString()}
+                <Coins className="size-3" /> {user.coins.toLocaleString("en-US")}
                 <Flame className="size-3 ml-1" /> {user.streak}
-                <BarChart3 className="size-3 ml-1" /> {user.xp.toLocaleString()}
+                <BarChart3 className="size-3 ml-1" /> {user.xp.toLocaleString("en-US")}
               </p>
             </div>
             <span

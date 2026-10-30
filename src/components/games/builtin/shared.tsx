@@ -85,7 +85,7 @@ export function useSubmitScore() {
       method: "POST",
       body: JSON.stringify({ game, score }),
     });
-    if (res.ok) toast.success(`Score saved: ${score.toLocaleString()}`);
+    if (res.ok) toast.success(`Score saved: ${score.toLocaleString("en-US")}`);
     else if (res.status === 429) toast.error("Slow down — too many submissions.");
   }, []);
 }

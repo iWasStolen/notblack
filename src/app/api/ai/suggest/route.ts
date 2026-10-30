@@ -53,7 +53,7 @@ export async function POST(req: Request) {
         {
           role: "system",
           content:
-            'You write follow-up suggestions for a chat assistant. Reply with ONLY a JSON array of exactly 3 short, natural follow-up questions or requests the user might send next (strings). Each under 60 characters, no numbering, no prose. Vary the angle (go deeper / apply it / challenge it). Match the language of the conversation.',
+            'You write follow-up suggestions for a chat assistant. Reply with ONLY a JSON array of exactly 3 short, natural follow-up questions or requests the user might send next (strings). Each under 60 characters, no numbering, no prose. Vary the angle (go deeper / apply it / challenge it). Write them in English (United States) unless the conversation is in another language.',
         },
         { role: "user", content: source },
       ],

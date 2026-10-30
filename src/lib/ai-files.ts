@@ -123,7 +123,7 @@ export function classify(name: string, mime: string): FileKind {
 /* ---------------- helpers ---------------- */
 
 function clamp(text: string, max = MAX_EXTRACTED_CHARS): string {
-  return text.length > max ? text.slice(0, max) + `\n\n[… truncated, ${text.length.toLocaleString()} chars total]` : text;
+  return text.length > max ? text.slice(0, max) + `\n\n[… truncated, ${text.length.toLocaleString("en-US")} chars total]` : text;
 }
 
 function stripHtml(html: string): string {
@@ -355,7 +355,7 @@ async function extractEpub(buf: Buffer, name: string): Promise<string> {
   const out: string[] = [`E-book: ${name}`];
   const docs = zip.getEntries()
     .filter((e) => /\.(xhtml|html?)$/i.test(e.entryName))
-    .sort((a, b) => a.entryName.localeCompare(b.entryName, undefined, { numeric: true }));
+    .sort((a, b) => a.entryName.localeCompare(b.entryName, "en-US", { numeric: true }));
   let budget = 120_000;
   for (const e of docs) {
     if (budget <= 0) break;
@@ -603,7 +603,7 @@ export function metaOf(f: {
 /* Build the context block the chat model sees for a file. */
 export function fileContextBlock(meta: { name: string; kind: string; size: number; extracted: string }, budget: number): string {
   const body = meta.extracted.length > budget
-    ? meta.extracted.slice(0, budget) + `\n[… truncated — ${meta.extracted.length.toLocaleString()} chars available on request]`
+    ? meta.extracted.slice(0, budget) + `\n[… truncated — ${meta.extracted.length.toLocaleString("en-US")} chars available on request]`
     : meta.extracted;
   return `[attached file: ${meta.name} — ${meta.kind}, ${(meta.size / 1024).toFixed(1)} KB]\n${body}\n[/attached file]`;
 }

@@ -362,7 +362,7 @@ export function GamePlayer({
                       <span className="text-[#555] mr-1">{i + 1}.</span>
                       {s.name}
                     </span>
-                    <span className="text-white shrink-0">{s.score.toLocaleString()}</span>
+                    <span className="text-white shrink-0">{s.score.toLocaleString("en-US")}</span>
                   </li>
                 ))}
               </ol>

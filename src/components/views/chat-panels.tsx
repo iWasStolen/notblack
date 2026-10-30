@@ -97,7 +97,7 @@ export function LeaderboardDialog({
                     {r.displayName || r.username}
                   </span>
                   <span className="font-mono text-[13px] text-[#c9c9c9]">
-                    {r.score.toLocaleString()}
+                    {r.score.toLocaleString("en-US")}
                   </span>
                 </li>
               ))}
@@ -173,7 +173,7 @@ export function ProfileDialog({
               ].map(([label, val]) => (
                 <div key={String(label)} className="border border-[#1a1a1a] rounded-md p-2">
                   <div className="font-mono text-[13px] text-white">
-                    {Number(val).toLocaleString()}
+                    {Number(val).toLocaleString("en-US")}
                   </div>
                   <div className="text-[10px] text-[#666] uppercase tracking-wide">
                     {label}
@@ -438,7 +438,7 @@ export function ModDialog({
               {audit.map((a) => (
                 <div key={a.id} className="flex gap-2 text-[#999]">
                   <span className="text-[#555] font-mono shrink-0">
-                    {new Date(a.createdAt).toLocaleTimeString()}
+                    {new Date(a.createdAt).toLocaleTimeString("en-US")}
                   </span>
                   <span>
                     <span className="text-white">{a.actorId}</span> → {a.action}

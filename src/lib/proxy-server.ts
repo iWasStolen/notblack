@@ -292,9 +292,14 @@ export function rewriteHtml(html: string, base: string, jarId: string): string {
 /* ---------------- Main fetch + relay ---------------- */
 
 const HOP_HEADERS = [
-  "accept", "accept-language", "user-agent", "referer", "range",
+  "accept", "user-agent", "referer", "range",
   "content-type", "origin", "if-none-match", "if-modified-since",
 ];
+
+/* every proxied page must load in English (US): the visitor's own
+   Accept-Language is deliberately NOT forwarded — outbound requests
+   always ask for en-US first */
+const FORCED_ACCEPT_LANGUAGE = "en-US,en;q=0.9";
 
 export interface ProxyResult {
   response: Response;
@@ -342,6 +347,7 @@ export async function relay(
       const v = req.headers.get(h);
       if (v) headers[h] = v;
     }
+    headers["accept-language"] = FORCED_ACCEPT_LANGUAGE;
     headers["user-agent"] =
       req.headers.get("user-agent") ??
       "Mozilla/5.0 (compatible; MemphisProxy/1.0)";

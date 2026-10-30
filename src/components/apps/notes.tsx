@@ -94,7 +94,7 @@ export default function Notes() {
                         {n.title || "Untitled"}
                       </span>
                       <span className="block text-[10px] text-[#555] mt-0.5">
-                        {new Date(n.updatedAt).toLocaleString()}
+                        {new Date(n.updatedAt).toLocaleString("en-US")}
                       </span>
                     </button>
                   </li>

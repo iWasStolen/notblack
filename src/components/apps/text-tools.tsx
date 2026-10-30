@@ -34,7 +34,7 @@ export default function TextTools() {
     { label: "Reverse", fn: (t) => [...t].reverse().join("") },
     { label: "Trim lines", fn: (t) => t.split("\n").map((l) => l.trim()).join("\n") },
     { label: "Remove blank lines", fn: (t) => t.split("\n").filter((l) => l.trim()).join("\n") },
-    { label: "Sort lines", fn: (t) => t.split("\n").sort((a, b) => a.localeCompare(b)).join("\n") },
+    { label: "Sort lines", fn: (t) => t.split("\n").sort((a, b) => a.localeCompare(b, "en-US")).join("\n") },
     { label: "Dedupe lines", fn: (t) => [...new Set(t.split("\n"))].join("\n") },
   ];
 

@@ -35,7 +35,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning className="dark">
+    <html lang="en-US" suppressHydrationWarning className="dark">
       <head>
         {/* compat shim (localStorage guard — keeps settings persistence
             alive on storage-blocked browsers) — blocking on purpose,

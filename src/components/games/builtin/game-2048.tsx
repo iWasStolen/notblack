@@ -144,12 +144,12 @@ export default function Game2048() {
     <GameChrome
       title="2048"
       scoreLabel="score"
-      score={score.toLocaleString()}
-      extra={<span className="font-mono text-xs text-[#666]">best {best.toLocaleString()}</span>}
+      score={score.toLocaleString("en-US")}
+      extra={<span className="font-mono text-xs text-[#666]">best {best.toLocaleString("en-US")}</span>}
       onRestart={restart}
       over={over || won}
       overTitle={won ? "You reached 2048!" : "No moves left"}
-      overScore={`Score: ${score.toLocaleString()}`}
+      overScore={`Score: ${score.toLocaleString("en-US")}`}
       onOverSubmit={
         score > 0 && !submitted.current
           ? () => {

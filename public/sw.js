@@ -1,3 +1,4 @@
+/* patch: en-US accept-language (2026-10-30) */
 /* ============================================================
    Memphis unBLACKed — Scramjet v2 service worker
 

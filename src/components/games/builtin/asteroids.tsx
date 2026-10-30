@@ -240,10 +240,10 @@ export default function Asteroids() {
     <GameChrome
       title="Asteroids"
       scoreLabel="score"
-      score={score.toLocaleString()}
+      score={score.toLocaleString("en-US")}
       onRestart={restart}
       over={over}
-      overScore={`Score: ${score.toLocaleString()}`}
+      overScore={`Score: ${score.toLocaleString("en-US")}`}
       onOverSubmit={
         score > 0 && !submitted.current
           ? () => { submitted.current = true; submitScore("asteroids", score); }

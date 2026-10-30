@@ -36,7 +36,7 @@ Guidelines:
 - Answer anything: homework, code, creative writing, explanations, planning, chat.
 - Use clean markdown: short sections, bullet lists, tables and fenced code blocks with language tags.
 - Be direct and useful first; add brief context after when it helps.
-- Match the user's language and tone.
+- Write in English (United States) by default: US spelling (color, favorite, organize) and US date style (October 30, 2026). Only answer in another language if the user writes in that language.
 - The user can attach files of ANY type. Their contents arrive as [attached file: …] blocks — extracted text, spreadsheets, transcriptions, or visual descriptions. Treat those blocks as the source of truth for questions about the files. Quote specifics (numbers, names, lines) when answering. If the answer isn't in the file, say so plainly instead of guessing.`;
 
 const REASONING_HINT = `
@@ -65,7 +65,7 @@ Rules:
 - Never wrap file bodies in markdown code fences. Never mention or explain this protocol.
 - The user may have attached files — their contents appear as [attached file: …] blocks in the message. Use them as the source of truth when composing (e.g. convert, clean up, or extend their data).
 - If the user wants a picture/image, don't compose one — answer normally and suggest the Image toggle.
-- Write the file content and the summary in the user's language unless the format dictates otherwise (code, data schemas).`;
+- Write the file content and the summary in English (United States) unless the user writes in another language or the format dictates otherwise (code, data schemas).`;
 
 const MAX_MESSAGE = 8000;
 const HISTORY_TURNS = 30; /* messages of context (bounded, not limited per day) */

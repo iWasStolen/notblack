@@ -442,7 +442,7 @@ function LiveFileBox({ live }: { live: { name: string; content: string } }) {
         <FilePlus2 className="size-3.5 text-[#7cc4ff] shrink-0" />
         <span className="text-[11.5px] text-[#9fd0ff] font-medium truncate">composing {live.name}</span>
         <span className="ml-auto text-[10.5px] text-[#55697a] font-mono shrink-0">
-          {live.content.length.toLocaleString()} chars
+          {live.content.length.toLocaleString("en-US")} chars
         </span>
       </div>
       <pre className="max-h-40 overflow-y-auto memphis-scroll px-3 py-2 text-[11px] leading-relaxed text-[#8a8a8a] whitespace-pre-wrap break-words">

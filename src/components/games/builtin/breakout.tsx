@@ -161,12 +161,12 @@ export default function Breakout() {
     <GameChrome
       title="Breakout"
       scoreLabel="score"
-      score={score.toLocaleString()}
+      score={score.toLocaleString("en-US")}
       extra={<span className="font-mono text-xs text-[#666]">lives {Math.max(0, lives)}</span>}
       onRestart={restart}
       over={over || won}
       overTitle={won ? "Wall cleared!" : "Game over"}
-      overScore={`Score: ${score.toLocaleString()}`}
+      overScore={`Score: ${score.toLocaleString("en-US")}`}
       onOverSubmit={
         score > 0 && !submitted.current
           ? () => { submitted.current = true; submitScore("breakout", score); }

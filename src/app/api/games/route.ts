@@ -159,8 +159,8 @@ export async function GET(req: Request) {
         return terms.every((t) => hay.includes(t));
       });
     }
-    if (sort === "az") resolved = [...resolved].sort((a, b) => a.name.localeCompare(b.name));
-    else if (sort === "za") resolved = [...resolved].sort((a, b) => b.name.localeCompare(a.name));
+    if (sort === "az") resolved = [...resolved].sort((a, b) => a.name.localeCompare(b.name, "en-US"));
+    else if (sort === "za") resolved = [...resolved].sort((a, b) => b.name.localeCompare(a.name, "en-US"));
     return Response.json({
       ok: true,
       total: resolved.length,
@@ -180,8 +180,8 @@ export async function GET(req: Request) {
     });
   }
 
-  if (sort === "az") list = [...list].sort((a, b) => a.name.localeCompare(b.name));
-  else if (sort === "za") list = [...list].sort((a, b) => b.name.localeCompare(a.name));
+  if (sort === "az") list = [...list].sort((a, b) => a.name.localeCompare(b.name, "en-US"));
+  else if (sort === "za") list = [...list].sort((a, b) => b.name.localeCompare(a.name, "en-US"));
 
   const total = list.length;
   const start = (page - 1) * per;

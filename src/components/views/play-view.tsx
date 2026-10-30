@@ -168,7 +168,7 @@ export default function PlayView() {
             <Gamepad2 className="size-4" /> Play
           </h1>
           <span className="mono-label">
-            {total > 0 ? `${total.toLocaleString()} games ready` : "loading catalog"}
+            {total > 0 ? `${total.toLocaleString("en-US")} games ready` : "loading catalog"}
           </span>
           <span className="flex-1" />
           <div className="relative">
@@ -268,7 +268,7 @@ export default function PlayView() {
         {loading ? (
           <div className="flex flex-col items-center justify-center py-24 gap-3 text-[#777]">
             <Loader2 className="size-6 animate-spin text-white" />
-            <p className="text-xs font-mono">loading {total ? total.toLocaleString() : ""} games…</p>
+            <p className="text-xs font-mono">loading {total ? total.toLocaleString("en-US") : ""} games…</p>
           </div>
         ) : games.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-24 gap-3 text-center px-6">
@@ -350,7 +350,7 @@ export default function PlayView() {
                     </>
                   ) : (
                     <>
-                      <Server className="size-4 mr-2" /> Load more ({(total - games.length).toLocaleString()} left)
+                      <Server className="size-4 mr-2" /> Load more ({(total - games.length).toLocaleString("en-US")} left)
                     </>
                   )}
                 </Button>

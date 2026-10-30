@@ -470,3 +470,19 @@ Stage Summary:
 
 Stage Summary:
 - The app is a single Docker web service on Render: one gateway process routes the one public port to Next, the wisp relay and the chat service with unchanged client URLs, supervises them with crash backoff, creates/migrates the SQLite database at boot, and can ingest AI credentials from one env var — every layer proven against a local simulation of the exact container topology.
+
+## Render.com — repo hygiene for the first push (2026-10-31, latest)
+
+- User request: "make this app ready to be put on render.com" → "Tell me step by step how to setup and configure this in render".
+- AUDIT: the Render packaging itself (Dockerfile, render.yaml, gateway, health route — see previous entry) was complete and committed, BUT the sandbox auto-commit had been tracking the LIVE SQLite database (user accounts with password hashes, chat history), user uploads, .env and agent plumbing — pushing `main` with its 23 auto-commits would have leaked all of it through git history.
+- FIX:
+  1. .gitignore now covers /db/, /upload/, /download/, /tool-results/, /.zscripts/ ( alongside the pre-existing .env* / .z-ai-config rules).
+  2. `git rm -r --cached` those paths on main + commit — future auto-commits can never re-add them.
+  3. NEW `deploy` branch: orphan, ONE squashed snapshot commit, zero history — this is the branch that gets pushed to GitHub.
+  4. README "Deploy" step 1 rewritten around the deploy-branch push.
+- VERIFIED on `deploy`: git ls-files shows no .env/db/upload/download/tool-results/.zscripts; key-scan clean; all 18 Docker build inputs present (lockfiles, public proxy bundles incl. scramjet wasm, data/games.json, mini-services, gateway, health route); 326 files, 1 commit.
+- RE-RAN the full local topology simulation (scripts/test-render-sim.sh) on today's tree: gateway boots, prisma db push creates the fresh DB, health {"ok":true}, socket.io polling + BOTH WS upgrades 101, browser E2E registers a user (Prisma) and loads httpbin through the wisp relay with "Accept-Language": "en-US,en;q=0.9" — the en-US work is intact end-to-end in the container topology.
+- Deployment instructions for Render delivered in chat (blueprint flow, ZAI_CONFIG, free-plan persistence caveats, verification checklist).
+
+Stage Summary:
+- The repo is safe to push: one clean `deploy` branch (single commit, no live data, no history) contains everything the Render Docker build needs, and the whole container topology was re-validated today.

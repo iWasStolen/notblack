@@ -245,7 +245,19 @@ The routing mirrors the sandbox gateway's `XTransformPort` convention, so
 
 ### Deploy
 
-1. Push this repo to GitHub/GitLab.
+1. Push the clean `deploy` branch to GitHub/GitLab (a private repo is
+   fine — Render connects to private repos):
+
+   ```bash
+   git remote add origin https://github.com/<you>/<repo>.git
+   git push -u origin deploy
+   ```
+
+   `deploy` is a single squashed snapshot commit: the workspace's full
+   `main` history (which at some point contained the sandbox's live
+   SQLite database and uploads) never leaves the machine. `main` and
+   `deploy` now both gitignore `db/`, `upload/`, `.env`,
+   `download/`, `tool-results/` and `.zscripts/`.
 2. On Render: **New → Blueprint**, point it at the repo — `render.yaml`
    creates the web service (Docker, health check `/api/health`).
 3. (Optional, for Memphis AI) set the `ZAI_CONFIG` env var in the Render

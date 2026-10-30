@@ -54,3 +54,11 @@ server.log
 /skills/
 # bundled mini-services (build artifact — rebuilt by Docker / .zscripts)
 mini-services-dist
+
+# never commit: live SQLite database, user uploads, sandbox deliverables,
+# agent tool output and workspace plumbing (also covered by .dockerignore)
+/db/
+/upload/
+/download/
+/tool-results/
+/.zscripts/
